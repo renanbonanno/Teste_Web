@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoTrend | E-commerce Sustentável</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Estilos da Aplicação -->
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- React 18 & Babel Standalone (Para executar JSX nativamente no navegador) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Código React da Aplicação EcoTrend -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // Dados de fallback caso o arquivo seja aberto diretamente via file:// (onde navegadores bloqueiam fetch local)
+    const FALLBACK_PRODUCTS = [
+      {
+        id: 1,
+        name: "Camiseta Algodão Orgânico",
+        category: "Roupas",
+        price: 89.90,
+        description: "Feita 100% com algodão orgânico certificado, sem agrotóxicos e tingimento vegetal natural.",
+        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+        rating: 4.8
+      },
+      {
+        id: 2,
+        name: "Kit Shampoo & Condicionador em Barra",
+        category: "Beleza",
+        price: 54.90,
+        description: "Zero plástico, vegano e biodegradável. Rende até 60 lavagens por barra.",
+        image: "https://images.unsplash.com/photo-1608248597359-548455581977?auto=format&fit=crop&w=600&q=80",
+        rating: 4.9
+      },
+      {
+        id: 3,
+        name: "Copo Retrátil de Silicone Reutilizável",
+        category: "Casa",
+        price: 39.90,
+        description: "Livre de BPA e metais pesados. Dobrável, cabe no bolso e evita descartáveis.",
+        image: "https://images.unsplash.com/photo-1577705998148-6da4f3963bc8?auto=format&fit=crop&w=600&q=80",
+        rating: 4.6
+      },
+      {
+        id: 4,
+        name: "Carregador Solar Portátil PowerBank",
+        category: "Tecnologia Verde",
+        price: 189.90,
+        description: "Bateria de 10.000mAh recarregada por energia solar direta. Resistente a água e poeira.",
+        image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80",
+        rating: 4.7
+      },
+      {
+        id: 5,
+        name: "Tênis Vegano de Fibra de Bambu",
+        category: "Roupas",
+        price: 249.90,
+        description: "Cabedal feito de bambu ultra respirável e sola de borracha natural reciclada.",
+        image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=600&q=80",
+        rating: 4.9
+      },
+      {
+        id: 6,
+        name: "Escova de Dentes de Bambu (Kit c/ 4)",
+        category: "Beleza",
+        price: 29.90,
+        description: "Cabo 100% biodegradável e compostável. Cerdas macias com carvão ativado.",
+        image: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?auto=format&fit=crop&w=600&q=80",
+        rating: 4.5
+      },
+      {
+        id: 7,
+        name: "Kit Canudos de Inox Reutilizáveis",
+        category: "Casa",
+        price: 24.50,
+        description: "Acompanha escova de higienização interna e estojo de algodão cru para transporte.",
+        image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+        rating: 4.7
+      },
+      {
+        id: 8,
+        name: "Teclado & Mouse Sem Fio de Bambu",
+        category: "Tecnologia Verde",
+        price: 219.00,
+        description: "Estrutura artesanal em madeira de bambu sustentável, conexão Bluetooth de baixo consumo.",
+        image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
+        rating: 4.6
+      }
+    ];
+
+    // ==========================================
+    // 1. LoadingSpinner Component
+    // ==========================================
+    function LoadingSpinner() {
+      return (
+        <div className="spinner-container">
+          <div className="spinner">
+            <i className="fa-solid fa-seedling fa-spin"></i>
+          </div>
+          <p>Carregando produtos sustentáveis...</p>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 2. Navbar Component
+    // ==========================================
+    function Navbar({ searchTerm, onSearchChange, cartCount, onOpenCart }) {
+      return (
+        <header className="navbar">
+          <div className="navbar-container">
+            <div className="navbar-brand">
+              <i className="fa-solid fa-leaf brand-icon"></i>
+              <h1>Eco<span>Trend</span></h1>
+            </div>
+
+            <div className="navbar-search">
+              <i className="fa-solid fa-magnifying-glass search-icon"></i>
+              <input
+                type="text"
+                placeholder="Buscar produtos ecológicos..."
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+              {searchTerm && (
+                <button className="clear-search-btn" onClick={() => onSearchChange('')}>
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              )}
+            </div>
+
+            <button 
+              className="cart-trigger-btn" 
+              onClick={onOpenCart}
+              aria-label="Abrir carrinho de compras"
+            >
+              <i className="fa-solid fa-bag-shopping"></i>
+              <span className="cart-text">Carrinho</span>
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+            </button>
+          </div>
+        </header>
+      );
+    }
+
+    // ==========================================
+    // 3. Filters Component
+    // ==========================================
+    function Filters({ 
+      categories, 
+      selectedCategory, 
+      onSelectCategory, 
+      maxPrice, 
+      onMaxPriceChange,
+      sortBy,
+      onSortChange,
+      onResetFilters 
+    }) {
+      return (
+        <aside className="filters-container">
+          <div className="filters-header">
+            <h3><i className="fa-solid fa-sliders"></i> Filtros</h3>
+            <button className="reset-filters-btn" onClick={onResetFilters}>
+              Limpar
+            </button>
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-title">Categorias</label>
+            <div className="category-buttons">
+              <button 
+                className={`cat-btn ${selectedCategory === 'Todas' ? 'active' : ''}`}
+                onClick={() => onSelectCategory('Todas')}
+              >
+                Todas
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  className={`cat-btn ${selectedCategory === cat ? 'active' : ''}`}
+                  onClick={() => onSelectCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <div className="price-label-row">
+              <label className="filter-title">Preço Máximo:</label>
+              <span className="price-value">R$ {Number(maxPrice).toFixed(2)}</span>
+            </div>
+            <input 
+              type="range" 
+              min="20" 
+              max="300" 
+              step="10" 
+              value={maxPrice}
+              onChange={(e) => onMaxPriceChange(Number(e.target.value))}
+              className="price-slider"
+            />
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-title">Ordenar por</label>
+            <select 
+              value={sortBy} 
+              onChange={(e) => onSortChange(e.target.value)}
+              className="sort-select"
+            >
+              <option value="default">Destaques</option>
+              <option value="price-asc">Menor Preço</option>
+              <option value="price-desc">Maior Preço</option>
+              <option value="rating">Melhor Avaliação</option>
+            </select>
+          </div>
+        </aside>
+      );
+    }
+
+    // ==========================================
+    // 4. ProductCard Component
+    // ==========================================
+    function ProductCard({ product, onAddToCart }) {
+      const { id, name, category, price, description, image, rating } = product;
+
+      return (
+        <article className="product-card">
+          <div className="product-image-wrap">
+            <img src={image} alt={name} loading="lazy" />
+            <span className="product-category-tag">{category}</span>
+          </div>
+
+          <div className="product-info">
+            <div className="product-rating">
+              <i className="fa-solid fa-star"></i>
+              <span>{rating.toFixed(1)}</span>
+            </div>
+
+            <h3 className="product-name">{name}</h3>
+            <p className="product-description">{description}</p>
+
+            <div className="product-footer">
+              <div className="product-price">
+                <span className="currency">R$</span>
+                <span className="amount">{price.toFixed(2)}</span>
+              </div>
+
+              <button 
+                className="add-to-cart-btn"
+                onClick={() => onAddToCart(product)}
+                aria-label={`Adicionar ${name} ao carrinho`}
+              >
+                <i className="fa-solid fa-cart-plus"></i> Adicionar
+              </button>
+            </div>
+          </div>
+        </article>
+      );
+    }
+
+    // ==========================================
+    // 5. ProductList Component
+    // ==========================================
+    function ProductList({ products, onAddToCart }) {
+      if (products.length === 0) {
+        return (
+          <div className="empty-products">
+            <i className="fa-solid fa-box-open"></i>
+            <h3>Nenhum produto encontrado</h3>
+            <p>Tente ajustar os filtros ou os termos de busca para encontrar o que procura.</p>
+          </div>
+        );
+      }
+
+      return (
+        <section className="product-grid">
+          {products.map((product) => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onAddToCart={onAddToCart} 
+            />
+          ))}
+        </section>
+      );
+    }
+
+    // ==========================================
+    // 6. Cart Component (com LocalStorage)
+    // ==========================================
+    function Cart({ 
+      isOpen, 
+      onClose, 
+      cartItems, 
+      onUpdateQuantity, 
+      onRemoveItem, 
+      onOpenCheckout 
+    }) {
+      if (!isOpen) return null;
+
+      const subtotal = cartItems.reduce(
+        (total, item) => total + item.price * item.quantity, 
+        0
+      );
+
+      return (
+        <div className="cart-backdrop" onClick={onClose}>
+          <aside className="cart-sidebar" onClick={(e) => e.stopPropagation()}>
+            <div className="cart-header">
+              <h3>
+                <i className="fa-solid fa-bag-shopping"></i> Seu Carrinho
+              </h3>
+              <button className="close-cart-btn" onClick={onClose}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="cart-items-container">
+              {cartItems.length === 0 ? (
+                <div className="empty-cart">
+                  <i className="fa-solid fa-cart-arrow-down"></i>
+                  <p>Seu carrinho está vazio.</p>
+                  <button className="continue-shopping-btn" onClick={onClose}>
+                    Explorar Produtos
+                  </button>
+                </div>
+              ) : (
+                cartItems.map((item) => (
+                  <div key={item.id} className="cart-item">
+                    <img src={item.image} alt={item.name} className="cart-item-img" />
+                    <div className="cart-item-details">
+                      <h4 className="cart-item-name">{item.name}</h4>
+                      <p className="cart-item-price">R$ {item.price.toFixed(2)}</p>
+
+                      <div className="cart-item-actions">
+                        <div className="quantity-controls">
+                          <button 
+                            onClick={() => onUpdateQuantity(item.id, -1)}
+                            aria-label="Diminuir quantidade"
+                          >
+                            <i className="fa-solid fa-minus"></i>
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button 
+                            onClick={() => onUpdateQuantity(item.id, 1)}
+                            aria-label="Aumentar quantidade"
+                          >
+                            <i className="fa-solid fa-plus"></i>
+                          </button>
+                        </div>
+
+                        <button 
+                          className="remove-item-btn" 
+                          onClick={() => onRemoveItem(item.id)}
+                          title="Remover produto"
+                        >
+                          <i className="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cartItems.length > 0 && (
+              <div className="cart-footer">
+                <div className="cart-summary-line">
+                  <span>Frete Ecológico:</span>
+                  <span className="free-shipping">Grátis (Neutralizado)</span>
+                </div>
+                <div className="cart-summary-line total-line">
+                  <span>Total:</span>
+                  <span className="total-amount">R$ {subtotal.toFixed(2)}</span>
+                </div>
+
+                <button className="checkout-btn" onClick={onOpenCheckout}>
+                  <i className="fa-solid fa-lock"></i> Finalizar Compra
+                </button>
+              </div>
+            )}
+          </aside>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 7. CheckoutModal Component (Promises)
+    // ==========================================
+    function CheckoutModal({ isOpen, onClose, cartItems, onPurchaseSuccess }) {
+      if (!isOpen) return null;
+
+      const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        paymentMethod: 'pix'
+      });
+
+      const [status, setStatus] = useState('idle'); // 'idle' | 'processing' | 'success' | 'error'
+      const [errorMessage, setErrorMessage] = useState('');
+      const [orderDetails, setOrderDetails] = useState(null);
+
+      const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+      const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      };
+
+      // Simulação com Promise explícita
+      const processCheckoutPromise = (orderData) => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (!orderData.name.trim() || !orderData.email.trim()) {
+              reject(new Error('Por favor, preencha todos os campos obrigatórios.'));
+              return;
+            }
+
+            if (!orderData.email.includes('@')) {
+              reject(new Error('Insira um endereço de e-mail válido.'));
+              return;
+            }
+
+            const isPaymentApproved = Math.random() > 0.05;
+
+            if (isPaymentApproved) {
+              resolve({
+                orderId: `ECO-${Math.floor(100000 + Math.random() * 900000)}`,
+                message: 'Pedido realizado com sucesso! Um certificado de árvore plantada foi enviado ao seu e-mail.',
+                total: orderData.total
+              });
+            } else {
+              reject(new Error('A operadora de pagamento recusou a transação. Tente novamente.'));
+            }
+          }, 2000);
+        });
+      };
+
+      const handleFinalizeOrder = async (e) => {
+        e.preventDefault();
+        setStatus('processing');
+        setErrorMessage('');
+
+        try {
+          const result = await processCheckoutPromise({
+            ...formData,
+            total,
+            items: cartItems
+          });
+
+          setStatus('success');
+          setOrderDetails(result);
+          onPurchaseSuccess();
+        } catch (err) {
+          setStatus('error');
+          setErrorMessage(err.message || 'Erro inesperado no checkout.');
+        }
+      };
+
+      return (
+        <div className="modal-backdrop">
+          <div className="checkout-modal">
+            <div className="modal-header">
+              <h3><i className="fa-solid fa-shield-halved"></i> Checkout Seguro</h3>
+              {status !== 'processing' && (
+                <button className="close-modal-btn" onClick={onClose}>
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              )}
+            </div>
+
+            {status === 'idle' && (
+              <form onSubmit={handleFinalizeOrder} className="checkout-form">
+                <p className="checkout-intro">
+                  Total a pagar: <strong>R$ {total.toFixed(2)}</strong> ({cartItems.length} itens)
+                </p>
+
+                <div className="form-field">
+                  <label htmlFor="name">Nome Completo</label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="Ex: Maria Silva"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="email">E-mail para Confirmação</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="Ex: maria@ecotrend.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Forma de Pagamento</label>
+                  <div className="payment-options">
+                    <label className="payment-radio">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="pix"
+                        checked={formData.paymentMethod === 'pix'}
+                        onChange={handleInputChange}
+                      />
+                      <span><i className="fa-brands fa-pix"></i> PIX (Aprovação Imediata)</span>
+                    </label>
+                    <label className="payment-radio">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="card"
+                        checked={formData.paymentMethod === 'card'}
+                        onChange={handleInputChange}
+                      />
+                      <span><i className="fa-regular fa-credit-card"></i> Cartão de Crédito</span>
+                    </label>
+                  </div>
+                </div>
+
+                <button type="submit" className="confirm-order-btn">
+                  Confirmar Pagamento de R$ {total.toFixed(2)}
+                </button>
+              </form>
+            )}
+
+            {status === 'processing' && (
+              <div className="checkout-status-box">
+                <div className="spinner">
+                  <i className="fa-solid fa-circle-notch fa-spin"></i>
+                </div>
+                <h4>Processando seu pedido...</h4>
+                <p>Validando pagamento e calculando a compensação ecológica de carbono da entrega.</p>
+              </div>
+            )}
+
+            {status === 'success' && (
+              <div className="checkout-status-box success">
+                <i className="fa-solid fa-circle-check success-icon"></i>
+                <h4>Parabéns pela Escolha Sustentável!</h4>
+                <p className="order-number">Código do Pedido: <strong>{orderDetails?.orderId}</strong></p>
+                <p className="order-msg">{orderDetails?.message}</p>
+                <button className="confirm-order-btn" onClick={onClose}>
+                  Voltar à Loja
+                </button>
+              </div>
+            )}
+
+            {status === 'error' && (
+              <div className="checkout-status-box error">
+                <i className="fa-solid fa-circle-exclamation error-icon"></i>
+                <h4>Falha no Processamento</h4>
+                <p className="error-msg">{errorMessage}</p>
+                <button className="retry-btn" onClick={() => setStatus('idle')}>
+                  Tentar Novamente
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 8. App Component Principal
+    // ==========================================
+    function App() {
+      const [products, setProducts] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [fetchError, setFetchError] = useState(null);
+
+      const [searchTerm, setSearchTerm] = useState('');
+      const [selectedCategory, setSelectedCategory] = useState('Todas');
+      const [maxPrice, setMaxPrice] = useState(300);
+      const [sortBy, setSortBy] = useState('default');
+
+      // LocalStorage com Lazy Initialization
+      const [cartItems, setCartItems] = useState(() => {
+        try {
+          const savedCart = localStorage.getItem('ecotrend_cart');
+          return savedCart ? JSON.parse(savedCart) : [];
+        } catch (e) {
+          console.error('Erro ao ler localStorage:', e);
+          return [];
+        }
+      });
+
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+      // Persistência no LocalStorage
+      useEffect(() => {
+        try {
+          localStorage.setItem('ecotrend_cart', JSON.stringify(cartItems));
+        } catch (e) {
+          console.error('Erro ao salvar no localStorage:', e);
+        }
+      }, [cartItems]);
+
+      // Fetch assíncrono com Async/Await e Spinner
+      useEffect(() => {
+        const loadProducts = async () => {
+          setLoading(true);
+          setFetchError(null);
+
+          try {
+            // Simulação de delay para feedback visual
+            await new Promise((res) => setTimeout(res, 800));
+
+            let data;
+            try {
+              const response = await fetch('./produtos.json');
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              data = await response.json();
+            } catch (err) {
+              console.warn('Fetch local bloqueado ou arquivo não acessível por HTTP, usando dados padrão:', err);
+              data = FALLBACK_PRODUCTS;
+            }
+
+            setProducts(data);
+          } catch (err) {
+            console.error('Erro geral ao carregar:', err);
+            setFetchError('Não foi possível carregar os produtos.');
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        loadProducts();
+      }, []);
+
+      const handleAddToCart = (product) => {
+        setCartItems((prevItems) => {
+          const existingItem = prevItems.find((item) => item.id === product.id);
+          if (existingItem) {
+            return prevItems.map((item) =>
+              item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            );
+          }
+          return [...prevItems, { ...product, quantity: 1 }];
+        });
+      };
+
+      const handleUpdateQuantity = (productId, delta) => {
+        setCartItems((prevItems) =>
+          prevItems
+            .map((item) => {
+              if (item.id === productId) {
+                const newQty = item.quantity + delta;
+                return newQty > 0 ? { ...item, quantity: newQty } : null;
+              }
+              return item;
+            })
+            .filter(Boolean)
+        );
+      };
+
+      const handleRemoveItem = (productId) => {
+        setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+      };
+
+      const handlePurchaseSuccess = () => {
+        setCartItems([]);
+        localStorage.removeItem('ecotrend_cart');
+      };
+
+      const categories = useMemo(() => {
+        const set = new Set(products.map((p) => p.category));
+        return Array.from(set);
+      }, [products]);
+
+      const filteredProducts = useMemo(() => {
+        return products
+          .filter((product) => {
+            const matchesCategory =
+              selectedCategory === 'Todas' || product.category === selectedCategory;
+            const matchesPrice = product.price <= maxPrice;
+            const matchesSearch = product.name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase());
+
+            return matchesCategory && matchesPrice && matchesSearch;
+          })
+          .sort((a, b) => {
+            if (sortBy === 'price-asc') return a.price - b.price;
+            if (sortBy === 'price-desc') return b.price - a.price;
+            if (sortBy === 'rating') return b.rating - a.rating;
+            return 0;
+          });
+      }, [products, selectedCategory, maxPrice, searchTerm, sortBy]);
+
+      const handleResetFilters = () => {
+        setSelectedCategory('Todas');
+        setMaxPrice(300);
+        setSearchTerm('');
+        setSortBy('default');
+      };
+
+      const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+      return (
+        <div className="app-container">
+          <Navbar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            cartCount={totalCartCount}
+            onOpenCart={() => setIsCartOpen(true)}
+          />
+
+          <section className="hero-banner">
+            <div className="hero-content">
+              <h2>Consumo Consciente, Futuro Sustentável</h2>
+              <p>Descubra produtos ecológicos que reduzem sua pegada de carbono no planeta.</p>
+            </div>
+          </section>
+
+          <main className="main-content">
+            <Filters
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              maxPrice={maxPrice}
+              onMaxPriceChange={setMaxPrice}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              onResetFilters={handleResetFilters}
+            />
+
+            <div className="content-area">
+              {loading && <LoadingSpinner />}
+
+              {fetchError && (
+                <div className="error-banner">
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  <p>{fetchError}</p>
+                  <button onClick={() => window.location.reload()}>Recarregar</button>
+                </div>
+              )}
+
+              {!loading && !fetchError && (
+                <ProductList
+                  products={filteredProducts}
+                  onAddToCart={handleAddToCart}
+                />
+              )}
+            </div>
+          </main>
+
+          <Cart
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cartItems={cartItems}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onOpenCheckout={() => {
+              setIsCartOpen(false);
+              setIsCheckoutOpen(true);
+            }}
+          />
+
+          <CheckoutModal
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            cartItems={cartItems}
+            onPurchaseSuccess={handlePurchaseSuccess}
+          />
+
+          <footer className="footer">
+            <p>© 2026 EcoTrend - Projeto Universitário Front-end Sustentável. Feito com React.</p>
+          </footer>
+        </div>
+      );
+    }
+
+    // Renderiza a Aplicação
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+

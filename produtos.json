@@ -1,0 +1,75 @@
+[
+  {
+    "id": 1,
+    "name": "Camiseta Algodão Orgânico",
+    "category": "Roupas",
+    "price": 89.90,
+    "description": "Feita 100% com algodão orgânico certificado, sem agrotóxicos e tingimento vegetal natural.",
+    "image": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.8
+  },
+  {
+    "id": 2,
+    "name": "Kit Shampoo & Condicionador em Barra",
+    "category": "Beleza",
+    "price": 54.90,
+    "description": "Zero plástico, vegano e biodegradável. Rende até 60 lavagens por barra.",
+    "image": "https://images.unsplash.com/photo-1608248597359-548455581977?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.9
+  },
+  {
+    "id": 3,
+    "name": "Copo Retrátil de Silicone Reutilizável",
+    "category": "Casa",
+    "price": 39.90,
+    "description": "Livre de BPA e metais pesados. Dobrável, cabe no bolso e evita descartáveis.",
+    "image": "https://images.unsplash.com/photo-1577705998148-6da4f3963bc8?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.6
+  },
+  {
+    "id": 4,
+    "name": "Carregador Solar Portátil PowerBank",
+    "category": "Tecnologia Verde",
+    "price": 189.90,
+    "description": "Bateria de 10.000mAh recarregada por energia solar direta. Resistente a água e poeira.",
+    "image": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.7
+  },
+  {
+    "id": 5,
+    "name": "Tênis Vegano de Fibra de Bambu",
+    "category": "Roupas",
+    "price": 249.90,
+    "description": "Cabedal feito de bambu ultra respirável e sola de borracha natural reciclada.",
+    "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.9
+  },
+  {
+    "id": 6,
+    "name": "Escova de Dentes de Bambu (Kit c/ 4)",
+    "category": "Beleza",
+    "price": 29.90,
+    "description": "Cabo 100% biodegradável e compostável. Cerdas macias com infusão de carvão ativado.",
+    "image": "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.5
+  },
+  {
+    "id": 7,
+    "name": "Kit Canudos de Inox Reutilizáveis",
+    "category": "Casa",
+    "price": 24.50,
+    "description": "Acompanha escova de higienização interna e estojo de algodão cru para transporte.",
+    "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.7
+  },
+  {
+    "id": 8,
+    "name": "Teclado & Mouse Sem Fio de Bambu",
+    "category": "Tecnologia Verde",
+    "price": 219.00,
+    "description": "Estrutura artesanal em madeira de bambu sustentável, conexão Bluetooth de baixo consumo.",
+    "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80",
+    "rating": 4.6
+  }
+]
+
