@@ -75,4 +75,3 @@ ecotrend/
 1. Suba esta pasta para um repositório no seu GitHub (`git init`, `git add .`, `git commit -m "feat: initial commit"`, `git push`).
 2. Acesse [vercel.com](https://vercel.com), faça login com o GitHub e selecione o repositório `ecotrend`.
 3. O build Vite será detectado automaticamente. Clique em **Deploy**.
-
